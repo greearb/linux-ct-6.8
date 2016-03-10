@@ -7995,7 +7995,7 @@ static struct sk_buff *
 ath10k_wmi_10_1_op_gen_peer_assoc(struct ath10k *ar,
 				  const struct wmi_peer_assoc_complete_arg *arg)
 {
-	size_t len = sizeof(struct wmi_10_1_peer_assoc_complete_cmd);
+	size_t len = sizeof(struct wmi_10_1_peer_assoc_complete_cmd_ct);
 	struct sk_buff *skb;
 	int ret;
 
@@ -8021,7 +8021,7 @@ static struct sk_buff *
 ath10k_wmi_10_2_op_gen_peer_assoc(struct ath10k *ar,
 				  const struct wmi_peer_assoc_complete_arg *arg)
 {
-	size_t len = sizeof(struct wmi_10_2_peer_assoc_complete_cmd);
+	size_t len = sizeof(struct wmi_10_2_peer_assoc_complete_cmd_ct);
 	struct sk_buff *skb;
 	int ret;
 
@@ -8046,6 +8046,7 @@ static struct sk_buff *
 ath10k_wmi_10_4_op_gen_peer_assoc(struct ath10k *ar,
 				  const struct wmi_peer_assoc_complete_arg *arg)
 {
+	// TODO:  size_t len = sizeof(struct wmi_10_4_peer_assoc_complete_cmd_ct);
 	size_t len = sizeof(struct wmi_10_4_peer_assoc_complete_cmd);
 	struct sk_buff *skb;
 	int ret;
