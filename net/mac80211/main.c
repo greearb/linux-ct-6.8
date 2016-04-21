@@ -1094,8 +1094,10 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
 
 	if (ieee80211_hw_check(hw, QUEUE_CONTROL) &&
 	    (local->hw.offchannel_tx_hw_queue == IEEE80211_INVAL_HW_QUEUE ||
-	     local->hw.offchannel_tx_hw_queue >= local->hw.queues))
+	     local->hw.offchannel_tx_hw_queue >= local->hw.queues)) {
+		pr_err("queue-ctrl mismatch.\n");
 		return -EINVAL;
+	}
 
 	if ((hw->wiphy->features & NL80211_FEATURE_TDLS_CHANNEL_SWITCH) &&
 	    (!local->ops->tdls_channel_switch ||
@@ -1159,8 +1161,10 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
 	}
 
 #ifdef CONFIG_PM
-	if (hw->wiphy->wowlan && (!local->ops->suspend || !local->ops->resume))
+	if (hw->wiphy->wowlan && (!local->ops->suspend || !local->ops->resume)) {
+		pr_err("wowlan mismatch.\n");
 		return -EINVAL;
+	}
 #endif
 
 	if (local->emulate_chanctx) {
@@ -1169,8 +1173,10 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
 
 			comb = &local->hw.wiphy->iface_combinations[i];
 
-			if (comb->num_different_channels > 1)
+			if (comb->num_different_channels > 1) {
+				pr_err("num-diff-channels: %d > 1\n", comb->num_different_channels);
 				return -EINVAL;
+			}
 		}
 	} else {
 		/* DFS is not supported with multi-channel combinations yet */
@@ -1278,8 +1284,10 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
 
 		/* HT, VHT, HE require QoS, thus >= 4 queues */
 		if (WARN_ON(local->hw.queues < IEEE80211_NUM_ACS &&
-			    (supp_ht || supp_vht || supp_he)))
+			    (supp_ht || supp_vht || supp_he))) {
+			pr_err("not enough queues for ht/vht/HE\n");
 			return -EINVAL;
+		}
 
 		/* EHT requires HE support */
 		if (WARN_ON(supp_eht && !supp_he))
@@ -1321,8 +1329,10 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
 
 		for (j = 0; j < c->n_limits; j++)
 			if ((c->limits[j].types & BIT(NL80211_IFTYPE_ADHOC)) &&
-			    c->limits[j].max > 1)
+			    c->limits[j].max > 1) {
+				pr_err("n-limits[%i][%i] mismatch: %d, IBSS\n", i, j, c->limits[j].max);
 				return -EINVAL;
+			}
 	}
 
 	local->int_scan_req = kzalloc(sizeof(*local->int_scan_req) +
@@ -1356,6 +1366,7 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
 	} else if (ieee80211_hw_check(&local->hw, SIGNAL_UNSPEC)) {
 		local->hw.wiphy->signal_type = CFG80211_SIGNAL_TYPE_UNSPEC;
 		if (hw->max_signal <= 0) {
+			pr_err("max_signal: %d < 0\n", hw->max_signal);
 			result = -EINVAL;
 			goto fail_workqueue;
 		}
